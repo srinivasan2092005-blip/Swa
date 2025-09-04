@@ -5,12 +5,19 @@ from collections import defaultdict
 
 st.write("Python executable:", sys.executable)
 
-# Safe import for plotly
+# Safe import for plotly with user alert to install if missing
 try:
     import plotly.express as px
 except ModuleNotFoundError:
-    st.warning("Plotly is not installed. Some graphs may not display.")
+    st.warning("Plotly is not installed. Some graphs may not display. Please install it using 'pip install plotly'.")
     px = None
+
+# Safe import for openpyxl (required for pandas Excel reading)
+try:
+    import openpyxl  # Required by pandas to read xlsx files
+except ModuleNotFoundError:
+    st.error("openpyxl is not installed. Excel files cannot be loaded. Please install it using 'pip install openpyxl'.")
+    openpyxl = None
 
 # Safe import for speech recognition
 try:
@@ -22,6 +29,9 @@ EXCEL_PATH = "./odisha_diseases_39_with_updated_treatments.xlsx"
 
 @st.cache_data
 def load_disease_data(path):
+    if openpyxl is None:
+        st.error("Cannot load Excel file because 'openpyxl' is missing.")
+        st.stop()
     try:
         df = pd.read_excel(path)
     except FileNotFoundError:
@@ -132,7 +142,8 @@ if symptom_input:
             st.markdown(f"- 🦠 *{disease.title()}* – matched symptoms: {score} – Risk Level: {risk_levels[disease]}")
         chart_df = pd.DataFrame([{"Disease": d, "Matched Symptoms": s, "Risk": risk_levels[d]} for d, s in sorted_diseases])
         color_map = {"High 🔴": "red", "Medium 🟠": "orange", "Low 🟢": "green"}
-        fig = px.bar(chart_df, x="Disease", y="Matched Symptoms", color="Risk", color_discrete_map=color_map, text="Matched Symptoms")
-        st.plotly_chart(fig)
+        if px:
+            fig = px.bar(chart_df, x="Disease", y="Matched Symptoms", color="Risk", color_discrete_map=color_map, text="Matched Symptoms")
+            st.plotly_chart(fig)
     else:
         st.info("No conditions match the selected symptoms.")
