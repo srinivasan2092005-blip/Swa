@@ -35,7 +35,8 @@ def load_disease_data(path):
         st.error(f"Excel must have a column called 'name'. Found: {list(df.columns)}")
         st.stop()
     df['name'] = df['name'].astype(str).str.lower()
-    for col in ['medicines', 'herbal_remedies', 'red_flags', 'symptoms', 'care', 'transmission', 'prevention', 'treatment', 'refs', 'about']:
+    for col in ['medicines', 'herbal_remedies', 'red_flags', 'symptoms', 'care', 'transmission',
+                'prevention', 'treatment', 'refs', 'about']:
         if col not in df.columns:
             df[col] = ""
     return df
@@ -100,7 +101,7 @@ if sr is not None and st.button("🎙 Speak Symptoms (comma separated)"):
         st.success(f"You said: {symptom_voice}")
     except Exception as e:
         st.error(f"Could not understand audio: {e}")
-
+        
 symptom_input = st.multiselect(
     "Select observed symptoms:",
     all_symptoms,
@@ -112,7 +113,7 @@ if symptom_input:
     risk_levels = {}
     for _, row in df.iterrows():
         disease_symptoms = [s.strip() for s in str(row['symptoms']).lower().split(",") if s.strip()]
-        red_flags = [s.strip() for s in str(row.get("red_flags","")).lower().split(",") if s.strip()]
+        red_flags = [s.strip() for s in str(row.get("red_flags", "")).lower().split(",") if s.strip()]
         matched = set(symptom_input) & set(disease_symptoms)
         score = len(matched)
         if score > 0:
@@ -135,4 +136,3 @@ if symptom_input:
         st.plotly_chart(fig)
     else:
         st.info("No conditions match the selected symptoms.")
-
