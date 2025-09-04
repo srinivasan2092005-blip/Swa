@@ -20,7 +20,7 @@ except ModuleNotFoundError:
 
 EXCEL_PATH = "./odisha_diseases_39_with_updated_treatments.xlsx"
 
-@st.cache
+@st.cache_data
 def load_disease_data(path):
     try:
         df = pd.read_excel(path)
@@ -135,3 +135,4 @@ if symptom_input:
         st.plotly_chart(fig)
     else:
         st.info("No conditions match the selected symptoms.")
+
